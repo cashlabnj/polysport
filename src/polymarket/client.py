@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Dict, List, Optional
+from datetime import UTC, datetime
 
 from polymarket.models import Fill, Market, Order, Outcome, Position
 
@@ -10,8 +9,8 @@ from polymarket.models import Fill, Market, Order, Outcome, Position
 @dataclass
 class ClientConfig:
     api_base: str
-    api_key: Optional[str]
-    wallet_address: Optional[str]
+    api_key: str | None
+    wallet_address: str | None
     paper: bool = True
 
 
@@ -20,7 +19,7 @@ class PolymarketClient:
         self.config = config
 
     @classmethod
-    def from_env(cls) -> "PolymarketClient":
+    def from_env(cls) -> PolymarketClient:
         return cls(
             ClientConfig(
                 api_base="https://example.polymarket.com",
@@ -30,7 +29,7 @@ class PolymarketClient:
             )
         )
 
-    def get_markets(self) -> List[Market]:
+    def get_markets(self) -> list[Market]:
         return [
             Market(
                 id="demo-market",
@@ -56,7 +55,7 @@ class PolymarketClient:
             created_at=order.created_at,
         )
 
-    def get_fills(self, order_id: Optional[str] = None) -> List[Fill]:
+    def get_fills(self, order_id: str | None = None) -> list[Fill]:
         fills = [
             Fill(
                 id="fill-1",
@@ -65,14 +64,14 @@ class PolymarketClient:
                 outcome_id="yes",
                 price=0.52,
                 size=5.0,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
             )
         ]
         if order_id:
             return [fill for fill in fills if fill.order_id == order_id]
         return fills
 
-    def get_positions(self) -> List[Position]:
+    def get_positions(self) -> list[Position]:
         return [
             Position(
                 market_id="demo-market",
@@ -82,5 +81,5 @@ class PolymarketClient:
             )
         ]
 
-    def health(self) -> Dict[str, str]:
+    def health(self) -> dict[str, str]:
         return {"status": "ok", "mode": "paper" if self.config.paper else "live"}

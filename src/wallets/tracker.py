@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Dict, List
+from datetime import UTC, datetime
 
 from wallets.features import WalletFeatures
-from wallets.scoring import WalletScoringEngine, WalletScore
+from wallets.scoring import WalletScore, WalletScoringEngine
 
 
 @dataclass
@@ -17,12 +16,12 @@ class WalletSnapshot:
 
 @dataclass
 class WalletWatchlist:
-    wallets: Dict[str, WalletSnapshot] = field(default_factory=dict)
+    wallets: dict[str, WalletSnapshot] = field(default_factory=dict)
 
     def update(self, snapshot: WalletSnapshot) -> None:
         self.wallets[snapshot.wallet] = snapshot
 
-    def top(self, scoring: WalletScoringEngine, limit: int = 10) -> List[WalletScore]:
+    def top(self, scoring: WalletScoringEngine, limit: int = 10) -> list[WalletScore]:
         scores = [scoring.score(wallet, snapshot.features) for wallet, snapshot in self.wallets.items()]
         return sorted(scores, key=lambda item: item.score, reverse=True)[:limit]
 
@@ -33,9 +32,9 @@ class WalletTracker:
         self.watchlist = WalletWatchlist()
 
     def ingest(self, wallet: str, features: WalletFeatures) -> WalletSnapshot:
-        snapshot = WalletSnapshot(wallet=wallet, features=features, captured_at=datetime.utcnow())
+        snapshot = WalletSnapshot(wallet=wallet, features=features, captured_at=datetime.now(UTC))
         self.watchlist.update(snapshot)
         return snapshot
 
-    def leaderboard(self, limit: int = 10) -> List[WalletScore]:
+    def leaderboard(self, limit: int = 10) -> list[WalletScore]:
         return self.watchlist.top(self.scoring, limit=limit)

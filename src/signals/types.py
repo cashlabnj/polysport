@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List
 
 
 @dataclass(frozen=True)
@@ -12,11 +11,11 @@ class Signal:
     outcome_id: str
     action: str
     confidence: float
-    explanation: Dict[str, float | str]
+    explanation: dict[str, float | str]
     created_at: datetime
 
 
 @dataclass(frozen=True)
 class SignalBatch:
-    signals: List[Signal]
+    signals: list[Signal]
     created_at: datetime

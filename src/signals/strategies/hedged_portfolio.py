@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class HedgedPortfolioStrategy:
                 action="buy",
                 confidence=0.45,
                 explanation={"hedge_ratio": 0.6, "note": "correlated_outcomes"},
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
             )
         ]

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import List
+from datetime import UTC, datetime
 
 from polymarket.client import PolymarketClient
 from polymarket.models import Market
@@ -18,6 +17,6 @@ class MarketDataService:
     def __init__(self, client: PolymarketClient) -> None:
         self.client = client
 
-    def snapshot(self) -> List[MarketSnapshot]:
-        now = datetime.utcnow()
+    def snapshot(self) -> list[MarketSnapshot]:
+        now = datetime.now(UTC)
         return [MarketSnapshot(market=market, captured_at=now) for market in self.client.get_markets()]

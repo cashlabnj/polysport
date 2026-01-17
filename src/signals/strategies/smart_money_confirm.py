@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class SmartMoneyConfirmStrategy:
                 action="buy",
                 confidence=0.58,
                 explanation={"wallet_score": 0.8, "note": "top_wallets"},
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
             )
         ]

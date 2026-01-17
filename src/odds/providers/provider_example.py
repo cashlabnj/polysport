@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from odds.providers.provider_base import OddsProvider, OddsSnapshot
 
@@ -11,6 +11,6 @@ class ExampleOddsProvider(OddsProvider):
             OddsSnapshot(
                 market_id="demo-market",
                 outcomes={"yes": 0.51, "no": 0.49},
-                captured_at=datetime.utcnow(),
+                captured_at=datetime.now(UTC),
             )
         ]
