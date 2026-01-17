@@ -1,13 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional, Sequence
+from datetime import UTC, datetime
 
 
 def _utc_now() -> datetime:
     """Return current UTC time (for dataclass default factory)."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class Market:
     question: str
     outcomes: Sequence[Outcome]
     active: bool
-    close_time: Optional[datetime] = None
+    close_time: datetime | None = None
 
 
 @dataclass(frozen=True)

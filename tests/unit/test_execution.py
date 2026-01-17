@@ -1,8 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-import pytest
-
-from execution.engine import ExecutionEngine, ExecutionResult, OrderSizing
+from execution.engine import ExecutionEngine, OrderSizing
 from risk.engine import RiskDecision
 from signals.types import Signal
 
@@ -21,7 +19,7 @@ def _make_signal(
         action=action,
         confidence=confidence,
         explanation={"edge": edge},
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 

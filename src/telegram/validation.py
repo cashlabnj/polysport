@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 
-
 # Validation patterns
 SAFE_NAME_PATTERN = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
 SAFE_MARKET_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_-]{1,128}$")

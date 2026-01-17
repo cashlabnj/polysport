@@ -1,6 +1,4 @@
-from datetime import datetime, timezone
-
-import pytest
+from datetime import UTC, datetime
 
 from risk.engine import MIN_CONFIDENCE_THRESHOLD, RiskDecision, RiskEngine, RiskState
 from risk.limits import RiskLimits
@@ -19,7 +17,7 @@ def _make_signal(
         action="buy",
         confidence=confidence,
         explanation={"test": "data"},
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 

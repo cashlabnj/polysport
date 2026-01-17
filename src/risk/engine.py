@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from risk.limits import RiskLimits
 from signals.types import Signal
-
 
 # Minimum confidence threshold for trade approval
 MIN_CONFIDENCE_THRESHOLD = 0.6
@@ -113,9 +111,9 @@ class RiskEngine:
 
     def batch_evaluate(
         self,
-        signals: List[Signal],
+        signals: list[Signal],
         risk_state: RiskState | None = None,
-    ) -> List[RiskDecision]:
+    ) -> list[RiskDecision]:
         """Evaluate multiple signals against risk limits."""
         if risk_state is None:
             risk_state = RiskState()

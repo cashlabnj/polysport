@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -12,7 +11,7 @@ class WalletFeatures:
     timing_edge: float
     market_selectivity: float
 
-    def as_dict(self) -> Dict[str, float]:
+    def as_dict(self) -> dict[str, float]:
         return {
             "roi": self.roi,
             "win_rate": self.win_rate,

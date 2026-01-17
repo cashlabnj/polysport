@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections import defaultdict
 from time import time
 
-
 # Maximum number of users to track before cleanup
 MAX_TRACKED_USERS = 10000
 # Cleanup interval (every N requests, perform cleanup)

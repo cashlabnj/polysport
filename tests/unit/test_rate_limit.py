@@ -1,4 +1,3 @@
-import time
 
 from telegram.rate_limit import RateLimiter
 

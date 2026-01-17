@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class VegasValueStrategy:
                 action="buy",
                 confidence=0.62,
                 explanation={"edge": 0.03, "source": "vegas_vs_poly"},
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         ]

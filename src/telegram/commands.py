@@ -31,7 +31,7 @@ class CommandHandler:
         auth: TelegramAuth,
         risk: RiskEngine,
         signals: SignalEngine,
-        db: "Database | None" = None,
+        db: Database | None = None,
     ) -> None:
         self.auth = auth
         self.risk = risk

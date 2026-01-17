@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from execution.orders import ExecutionOrder
@@ -39,7 +39,7 @@ class OrderSizing:
 class ExecutionEngine:
     def __init__(
         self,
-        db: "Database | None" = None,
+        db: Database | None = None,
         limits: RiskLimits | None = None,
         sizing: OrderSizing | None = None,
     ) -> None:
@@ -140,13 +140,12 @@ class ExecutionEngine:
         order_size = self._calculate_order_size(signal)
 
         # Check slippage if current price is provided
-        if current_price is not None:
-            if not within_slippage(target_price, current_price, DEFAULT_MAX_SLIPPAGE):
-                return ExecutionResult(
-                    order=None,
-                    status="rejected",
-                    reason=f"slippage_exceeded: target={target_price:.3f}, current={current_price:.3f}",
-                )
+        if current_price is not None and not within_slippage(target_price, current_price, DEFAULT_MAX_SLIPPAGE):
+            return ExecutionResult(
+                order=None,
+                status="rejected",
+                reason=f"slippage_exceeded: target={target_price:.3f}, current={current_price:.3f}",
+            )
 
         # Save idempotency key BEFORE creating order (prevents duplicates on failure)
         self._save_idempotency(key)
@@ -160,7 +159,7 @@ class ExecutionEngine:
             price=target_price,
             size=order_size,
             status="paper" if self.paper else "submitted",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         # Persist order

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import sqlite3
 import threading
+from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Iterator
 
 # Default database path
 DEFAULT_DB_PATH = "data/polysport.db"
@@ -143,7 +143,7 @@ class Database:
         return bool(row["trading_enabled"]) if row else False
 
     def set_trading_enabled(self, enabled: bool) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             "UPDATE risk_state SET trading_enabled = ?, updated_at = ? WHERE id = 1",
             (enabled, now),
@@ -158,7 +158,7 @@ class Database:
         return bool(row["paper_mode"]) if row else True
 
     def set_paper_mode(self, paper: bool) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             "UPDATE risk_state SET paper_mode = ?, updated_at = ? WHERE id = 1",
             (paper, now),
@@ -168,7 +168,7 @@ class Database:
     # Idempotency Operations
     def check_idempotency_key(self, key: str) -> bool:
         """Check if idempotency key exists and is not expired."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         # Clean up expired keys first
         self.conn.execute(
             "DELETE FROM idempotency_keys WHERE expires_at < ?", (now,)
@@ -181,7 +181,7 @@ class Database:
 
     def add_idempotency_key(self, key: str, ttl_hours: int = 24) -> None:
         """Add idempotency key with TTL."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires = now + timedelta(hours=ttl_hours)
         with self._lock:
             self.conn.execute(
@@ -202,7 +202,7 @@ class Database:
         status: str,
         strategy: str | None = None,
     ) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             """
             INSERT OR REPLACE INTO orders
@@ -214,7 +214,7 @@ class Database:
         self.conn.commit()
 
     def update_order_status(self, order_id: str, status: str) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             "UPDATE orders SET status = ?, updated_at = ? WHERE order_id = ?",
             (status, now, order_id),
@@ -261,7 +261,7 @@ class Database:
         return bool(row["enabled"]) if row else True  # Default enabled
 
     def set_strategy_enabled(self, strategy_name: str, enabled: bool) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             """
             INSERT OR REPLACE INTO strategy_state (strategy_name, enabled, updated_at)
@@ -277,7 +277,7 @@ class Database:
         return {row["market_id"] for row in cursor.fetchall()}
 
     def add_to_watchlist(self, market_id: str) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             "INSERT OR IGNORE INTO watchlist (market_id, added_at) VALUES (?, ?)",
             (market_id, now),
@@ -293,7 +293,7 @@ class Database:
     # Daily PnL Operations
     def get_daily_pnl(self, date: str | None = None) -> float:
         if date is None:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = datetime.now(UTC).strftime("%Y-%m-%d")
         cursor = self.conn.execute(
             "SELECT realized_pnl + unrealized_pnl as total FROM daily_pnl WHERE date = ?",
             (date,),
@@ -302,8 +302,8 @@ class Database:
         return row["total"] if row else 0.0
 
     def update_daily_pnl(self, realized: float = 0.0, unrealized: float = 0.0) -> None:
-        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        now = datetime.now(timezone.utc).isoformat()
+        date = datetime.now(UTC).strftime("%Y-%m-%d")
+        now = datetime.now(UTC).isoformat()
         self.conn.execute(
             """
             INSERT INTO daily_pnl (date, realized_pnl, unrealized_pnl, updated_at)
