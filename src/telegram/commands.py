@@ -17,6 +17,7 @@ from telegram.validation import (
 )
 
 if TYPE_CHECKING:
+    from polymarket.client import PolymarketClient
     from storage.db import Database
 
 
@@ -32,11 +33,13 @@ class CommandHandler:
         risk: RiskEngine,
         signals: SignalEngine,
         db: Database | None = None,
+        polymarket: PolymarketClient | None = None,
     ) -> None:
         self.auth = auth
         self.risk = risk
         self.signals = signals
         self.db = db
+        self.polymarket = polymarket
         self.paper = True
         self.strategy_state: dict[str, bool] = {}
         self.logger = logging.getLogger(__name__)
@@ -80,7 +83,7 @@ class CommandHandler:
         if command.startswith("/strategy"):
             return self._toggle_strategy(user_id, command)
         if command.startswith("/markets"):
-            return CommandResponse(text="markets: demo-market")
+            return self._get_markets()
         if command.startswith("/watchlist"):
             return self._handle_watchlist(user_id, command)
         if command.startswith("/risk"):
@@ -118,6 +121,31 @@ class CommandHandler:
             return CommandResponse(text="orders: no open orders")
         order_lines = [f"  {o['order_id']}: {o['side']} {o['size']}@{o['price']}" for o in orders[:5]]
         return CommandResponse(text=f"orders ({len(orders)} open):\n" + "\n".join(order_lines))
+
+    def _get_markets(self) -> CommandResponse:
+        """Get live markets from Polymarket."""
+        if not self.polymarket:
+            return CommandResponse(text="markets: API not configured")
+
+        try:
+            markets = self.polymarket.get_sports_markets(limit=5)
+            if not markets:
+                return CommandResponse(text="markets: no active sports markets found")
+
+            lines = ["Live Sports Markets:"]
+            for market in markets[:5]:
+                question = market.question[:60] + "..." if len(market.question) > 60 else market.question
+                if market.outcomes:
+                    prices = ", ".join(
+                        f"{o.name}: {o.price:.0%}" for o in market.outcomes[:2]
+                    )
+                    lines.append(f"  {question}\n    {prices}")
+                else:
+                    lines.append(f"  {question}")
+            return CommandResponse(text="\n".join(lines))
+        except Exception as e:
+            self.logger.error(f"Failed to fetch markets: {e}")
+            return CommandResponse(text="markets: failed to fetch (API error)")
 
     def _list_strategies(self) -> CommandResponse:
         """List all available strategies with their status."""
