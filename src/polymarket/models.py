@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Sequence
+
+
+def _utc_now() -> datetime:
+    """Return current UTC time (for dataclass default factory)."""
+    return datetime.now(timezone.utc)
 
 
 @dataclass(frozen=True)
@@ -30,7 +35,7 @@ class Order:
     price: float
     size: float
     status: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=_utc_now)
 
 
 @dataclass(frozen=True)

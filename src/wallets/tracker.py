@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 
 from wallets.features import WalletFeatures
@@ -33,7 +33,7 @@ class WalletTracker:
         self.watchlist = WalletWatchlist()
 
     def ingest(self, wallet: str, features: WalletFeatures) -> WalletSnapshot:
-        snapshot = WalletSnapshot(wallet=wallet, features=features, captured_at=datetime.utcnow())
+        snapshot = WalletSnapshot(wallet=wallet, features=features, captured_at=datetime.now(timezone.utc))
         self.watchlist.update(snapshot)
         return snapshot
 

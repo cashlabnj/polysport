@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from polymarket.models import Fill, Market, Order, Outcome, Position
@@ -65,7 +65,7 @@ class PolymarketClient:
                 outcome_id="yes",
                 price=0.52,
                 size=5.0,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
         ]
         if order_id:

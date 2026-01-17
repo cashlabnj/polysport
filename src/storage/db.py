@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import sqlite3
+import threading
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -121,15 +122,17 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
 
 class Database:
-    """High-level database operations."""
+    """High-level database operations with thread-safe access."""
 
     def __init__(self, db_path: str = DEFAULT_DB_PATH) -> None:
         self.db_path = db_path
+        self._lock = threading.Lock()
         self.conn = connect(db_path)
         init_schema(self.conn)
 
     def close(self) -> None:
-        self.conn.close()
+        with self._lock:
+            self.conn.close()
 
     # Risk State Operations
     def get_trading_enabled(self) -> bool:
@@ -179,12 +182,13 @@ class Database:
     def add_idempotency_key(self, key: str, ttl_hours: int = 24) -> None:
         """Add idempotency key with TTL."""
         now = datetime.now(timezone.utc)
-        expires = now.replace(hour=now.hour + ttl_hours) if ttl_hours < 24 else now.replace(day=now.day + 1)
-        self.conn.execute(
-            "INSERT OR REPLACE INTO idempotency_keys (key, created_at, expires_at) VALUES (?, ?, ?)",
-            (key, now.isoformat(), expires.isoformat()),
-        )
-        self.conn.commit()
+        expires = now + timedelta(hours=ttl_hours)
+        with self._lock:
+            self.conn.execute(
+                "INSERT OR REPLACE INTO idempotency_keys (key, created_at, expires_at) VALUES (?, ?, ?)",
+                (key, now.isoformat(), expires.isoformat()),
+            )
+            self.conn.commit()
 
     # Order Operations
     def save_order(

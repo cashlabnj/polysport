@@ -84,14 +84,21 @@ class ExecutionEngine:
     def _get_target_price(self, signal: Signal) -> float:
         """Get target price from signal explanation or use default."""
         explanation = signal.explanation
-        if "target_price" in explanation:
-            return float(explanation["target_price"])
-        if "edge" in explanation:
-            # Estimate price based on edge (simplified)
-            edge = float(explanation["edge"])
-            if signal.action == "buy":
-                return 0.5 + edge  # Buy at fair value + edge
-            return 0.5 - edge  # Sell at fair value - edge
+        try:
+            if "target_price" in explanation:
+                price = float(explanation["target_price"])
+                # Validate price is in valid range [0, 1]
+                if 0.0 <= price <= 1.0:
+                    return price
+            if "edge" in explanation:
+                # Estimate price based on edge (simplified)
+                edge = float(explanation["edge"])
+                if signal.action == "buy":
+                    return max(0.01, min(0.99, 0.5 + edge))  # Buy at fair value + edge
+                return max(0.01, min(0.99, 0.5 - edge))  # Sell at fair value - edge
+        except (ValueError, TypeError, KeyError):
+            # Fall through to default if conversion fails
+            pass
         return 0.5  # Default price
 
     def _check_idempotency(self, key: str) -> bool:
