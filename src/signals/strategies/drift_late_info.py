@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class LateInfoDriftStrategy:
                 action="buy",
                 confidence=0.57,
                 explanation={"drift": 0.02, "time_to_event_hours": 6},
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         ]

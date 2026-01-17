@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from signals.types import Signal, SignalBatch
@@ -27,4 +27,4 @@ class SignalEngine:
         signals: List[Signal] = []
         for strategy in self.strategies:
             signals.extend(strategy.generate())
-        return SignalBatch(signals=signals, created_at=datetime.utcnow())
+        return SignalBatch(signals=signals, created_at=datetime.now(timezone.utc))

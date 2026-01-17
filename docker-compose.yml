@@ -1,12 +1,58 @@
 version: "3.9"
+
 services:
   polysport:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: polysport
+    restart: unless-stopped
+    volumes:
+      - polysport-data:/app/data
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      PAPER_TRADING: ${PAPER_TRADING:-true}
+      TELEGRAM_ADMINS: ${TELEGRAM_ADMINS:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      POLYMARKET_API_KEY: ${POLYMARKET_API_KEY:-}
+      PYTHONPATH: /app/src
+    healthcheck:
+      test: ["CMD", "python", "-c", "from app.health import check_health; check_health()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 128M
+          cpus: "0.1"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Development mode with live reload
+  polysport-dev:
     image: python:3.11-slim
+    container_name: polysport-dev
     working_dir: /app
+    profiles:
+      - dev
     volumes:
       - ./:/app
+      - polysport-data:/app/data
     command: ["python", "-m", "app.main"]
     environment:
       APP_ENV: local
       PAPER_TRADING: "true"
-      TELEGRAM_ADMINS: ""
+      TELEGRAM_ADMINS: ${TELEGRAM_ADMINS:-}
+      PYTHONPATH: /app/src
+
+volumes:
+  polysport-data:
+    driver: local

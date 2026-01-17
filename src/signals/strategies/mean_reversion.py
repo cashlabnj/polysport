@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class MeanReversionStrategy:
                 action="buy",
                 confidence=0.5,
                 explanation={"z_score": -1.5, "note": "overreaction"},
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         ]

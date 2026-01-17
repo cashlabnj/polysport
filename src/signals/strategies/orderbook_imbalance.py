@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from signals.types import Signal
 
@@ -17,6 +17,6 @@ class OrderbookImbalanceStrategy:
                 action="sell",
                 confidence=0.55,
                 explanation={"bid_ask_ratio": 1.4, "note": "liquidity_shock"},
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
         ]
