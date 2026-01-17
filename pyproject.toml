@@ -6,6 +6,7 @@ requires-python = ">=3.10"
 dependencies = [
     "httpx>=0.25.0",
     "pydantic>=2.0.0",
+    "python-telegram-bot>=20.0",
 ]
 
 [project.optional-dependencies]
@@ -14,9 +15,6 @@ dev = [
     "pytest-cov>=4.0.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",
-]
-telegram = [
-    "python-telegram-bot>=20.0",
 ]
 
 [tool.pytest.ini_options]
