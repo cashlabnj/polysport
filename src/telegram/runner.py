@@ -60,7 +60,7 @@ class TelegramRunner:
 
         # Handle all commands
         self.app.add_handler(TGCommandHandler(
-            ["start", "help", "status", "trade", "paper", "strategy", "limit", "watch", "unwatch", "signals", "orders", "cancel"],
+            ["start", "help", "status", "trade", "paper", "strategy", "strategies", "limit", "watch", "unwatch", "signals", "orders", "cancel", "markets", "watchlist", "risk", "wallets"],
             self._handle_command
         ))
 

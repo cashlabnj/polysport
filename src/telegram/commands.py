@@ -75,6 +75,8 @@ class CommandHandler:
             return self._toggle_trade(user_id, command)
         if command.startswith("/paper"):
             return self._toggle_paper(user_id, command)
+        if command.startswith("/strategies"):
+            return self._list_strategies()
         if command.startswith("/strategy"):
             return self._toggle_strategy(user_id, command)
         if command.startswith("/markets"):
@@ -117,6 +119,17 @@ class CommandHandler:
         order_lines = [f"  {o['order_id']}: {o['side']} {o['size']}@{o['price']}" for o in orders[:5]]
         return CommandResponse(text=f"orders ({len(orders)} open):\n" + "\n".join(order_lines))
 
+    def _list_strategies(self) -> CommandResponse:
+        """List all available strategies with their status."""
+        lines = ["Available strategies:"]
+        for strategy in self.signals.strategies:
+            name = strategy.__class__.__name__
+            # Check if strategy is enabled (default: enabled)
+            enabled = self.strategy_state.get(name, True)
+            status = "ON" if enabled else "OFF"
+            lines.append(f"  {name}: {status}")
+        return CommandResponse(text="\n".join(lines))
+
     def _get_help(self) -> CommandResponse:
         """Get help message."""
         return CommandResponse(
@@ -124,6 +137,7 @@ class CommandHandler:
                 "Available commands:\n"
                 "/status - Show system status\n"
                 "/signals - Show active signals\n"
+                "/strategies - List all strategies\n"
                 "/orders - Show open orders\n"
                 "/markets - Show available markets\n"
                 "/trade on|off - Enable/disable trading (admin)\n"
